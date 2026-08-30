@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matraka de Hierro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1C1B19;
+      color: #F2ECE0;
+      font-family: "IBM Plex Mono", monospace;
+      min-height: 100vh;
+      padding: 20px 14px 40px;
+    }
+
+    .container {
+      max-width: 100%;
+    }
+
+    /* Cabecera */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .header-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #2E2B26;
+      border: 1px solid #7A6526;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    h1 {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      margin: 0;
+    }
+
+    /* Chips de grupos */
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      flex-shrink: 0;
+      background: #252320;
+      color: #9B948A;
+      border: 1px solid #3A362F;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: "Oswald", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: #E3B23C;
+      color: #1C1B19;
+      border-color: #E3B23C;
+      font-weight: 600;
+    }
+
+    /* Panel de ejercicios */
+    .exercise-panel {
+      background: #252320;
+      border: 1px solid #3A362F;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .carousel-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .carousel-arrow {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #2E2B26;
+      border: 1px solid #3A362F;
+      color: #F2ECE0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .carousel-arrow:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .carousel-track {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      gap: 0;
+      flex: 1;
+      border-radius: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .carousel-track::-webkit-scrollbar-track {
+      background: #3A362F;
+      border-radius: 2px;
+    }
+
+    .carousel-track::-webkit-scrollbar-thumb {
+      background: #E3B23C;
+      border-radius: 2px;
+    }
+
+    .carousel-card {
+      position: relative;
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      background: #332C1B;
+      border: 1px solid #E3B23C;
+      border-radius: 10px;
+      padding: 36px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      min-height: 240px;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .carousel-card:hover {
+      transform: scale(1.02);
+      border-color: #F2ECE0;
+    }
+
+    .carousel-card.add {
+      background: #2E2B26;
+      border: 1px dashed #3A362F;
+    }
+
+    .carousel-card-title {
+      font-family: "Oswald", sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #F2ECE0;
+      line-height: 1.25;
+    }
+
+    .carousel-card-type {
+      font-size: 13px;
+      color: #E3B23C;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      color: #9B948A;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .add-card-btn {
+      background: transparent;
+      border: none;
+      color: #9B948A;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: "Oswald", sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.03em;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .dots-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3A362F;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: #E3B23C;
+      width: 18px;
+      border-radius: 4px;
+    }
+
+    /* Panel de registro */
+    .log-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .plate {
+      background: #252320;
+      border: 1px solid #3A362F;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .plate-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .plate-name {
+      font-family: "Oswald", sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: #F2ECE0;
+    }
+
+    .plate-type {
+      font-size: 11px;
+      color: #E3B23C;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .last-row {
+      background: #2E2B26;
+      border: 1px solid #3A362F;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .last-label {
+      font-size: 10px;
+      color: #9B948A;
+      letter-spacing: 0.08em;
+    }
+
+    .last-date-line {
+      font-size: 10px;
+      color: #9B948A;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+
+    .last-sets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .last-set-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .last-set-idx {
+      font-size: 10px;
+      color: #9B948A;
+      background: #1C1B19;
+      border: 1px solid #3A362F;
+      border-radius: 4px;
+      padding: 1px 5px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .last-num {
+      font-family: "Oswald", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #E3B23C;
+    }
+
+    .last-x {
+      font-size: 13px;
+      color: #9B948A;
+    }
+
+    .last-unit {
+      font-size: 10px;
+      color: #9B948A;
+      margin-left: 2px;
+    }
+
+    /* Set rows */
+    .set-rows-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .set-row-line {
+      display: grid;
+      grid-template-columns: 30px 1fr 1fr 30px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .set-row-idx {
+      font-size: 13px;
+      color: #9B948A;
+      background: #2E2B26;
+      border: 1px solid #3A362F;
+      border-radius: 6px;
+      padding: 10px 0;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .row-remove {
+      background: transparent;
+      border: none;
+      color: #9B948A;
+      cursor: pointer;
+      padding: 6px;
+      font-size: 13px;
+    }
+
+    input[type="number"] {
+      background: #1C1B19;
+      border: 1px solid #3A362F;
+      border-radius: 8px;
+      color: #F2ECE0;
+      padding: 18px 10px;
+      font-size: 28px;
+      font-family: "Oswald", sans-serif;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+      width: 100%;
+    }
+
+    input[type="number"]:focus {
+      border-color: #E3B23C;
+    }
+
+    .add-set-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      color: #E3B23C;
+      border: 1px solid #7A6526;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-family: "IBM Plex Mono", monospace;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      background: #E3B23C;
+      color: #1C1B19;
+      border: none;
+      border-radius: 8px;
+      padding: 16px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: "Oswald", sans-serif;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-text {
+      color: #B5533C;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .placeholder {
+      background: #252320;
+      border: 1px dashed #3A362F;
+      border-radius: 10px;
+      padding: 26px;
+      text-align: center;
+      color: #9B948A;
+      font-size: 13px;
+    }
+
+    /* History */
+    .history-box {
+      background: #252320;
+      border: 1px solid #3A362F;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .panel-label {
+      font-family: "Oswald", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #9B948A;
+      text-transform: uppercase;
+    }
+
+    .trend-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .bars-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      height: 110px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      width: 44px;
+    }
+
+    .bar-track {
+      width: 20px;
+      height: 70px;
+      background: #2E2B26;
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      border: 1px solid #3A362F;
+    }
+
+    .bar-fill {
+      width: 100%;
+      background: #E3B23C;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .bar-val {
+      font-size: 10px;
+      color: #F2ECE0;
+    }
+
+    .bar-date {
+      font-size: 9px;
+      color: #9B948A;
+    }
+
+    .add-form {
+      background: #2E2B26;
+      border: 1px solid #3A362F;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      background: #1C1B19;
+      border: 1px solid #3A362F;
+      border-radius: 6px;
+      color: #F2ECE0;
+      padding: 9px 10px;
+      font-size: 13px;
+      font-family: "IBM Plex Mono", monospace;
+      outline: none;
+    }
+
+    .type-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .type-pill {
+      background: #1C1B19;
+      color: #9B948A;
+      border: 1px solid #3A362F;
+      border-radius: 5px;
+      padding: 5px 9px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .type-pill.active {
+      background: #7A6526;
+      color: #E3B23C;
+      border: 1px solid #E3B23C;
+    }
+
+    .add-btn {
+      background: #E3B23C;
+      color: #1C1B19;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: "Oswald", sans-serif;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+    }
+
+    .storage-notice {
+      font-size: 11px;
+      color: #E3B23C;
+      background: #332C1B;
+      border: 1px solid #7A6526;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Cabecera -->
+    <div class="header">
+      <div class="header-badge">💪</div>
+      <h1>MATRAKA DE HIERRO</h1>
+    </div>
+
+    <!-- Aviso de conexión -->
+    <div id="notice" class="storage-notice" style="display: none;"></div>
+
+    <!-- Chips de grupos -->
+    <div class="chip-row" id="groupChips"></div>
+
+    <!-- Panel de ejercicios -->
+    <section class="exercise-panel">
+      <div class="carousel-wrap">
+        <button class="carousel-arrow" id="prevBtn">◀</button>
+        <div class="carousel-track" id="carouselTrack"></div>
+        <button class="carousel-arrow" id="nextBtn">▶</button>
+      </div>
+      <div class="dots-row" id="dotsRow"></div>
+    </section>
+
+    <!-- Panel de registro -->
+    <section class="log-panel" id="logPanel"></section>
+  </div>
+
+  <script>
+    // ===== CONFIGURACIÓN =====
+    // PEGA AQUÍ TU URL DEL APPS SCRIPT
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXb2MoEJH8zqsGwOQJWasJeU_LLJOH_5O3848n0_zwRRIfxbgqqZXrFuzm2cD3q0w/exec";
+
+    // ===== DATOS =====
+    const TIPOS = ["Barra fija", "Mancuernas", "Máquina", "Peso corporal"];
+
+    const DEFAULT_GROUPS = [
+      {
+        id: "pecho",
+        name: "Pecho",
+        exercises: [
+          { id: "pecho-1", name: "Press de banca", type: "Barra fija" },
+          { id: "pecho-2", name: "Press inclinado", type: "Mancuernas" },
+          { id: "pecho-3", name: "Aperturas con mancuernas", type: "Mancuernas" },
+          { id: "pecho-4", name: "Fondos en paralelas", type: "Peso corporal" },
+          { id: "pecho-5", name: "Press en máquina", type: "Máquina" },
+        ],
+      },
+      {
+        id: "espalda",
+        name: "Espalda",
+        exercises: [
+          { id: "espalda-1", name: "Dominadas", type: "Peso corporal" },
+          { id: "espalda-2", name: "Remo con barra", type: "Barra fija" },
+          { id: "espalda-3", name: "Remo con mancuerna", type: "Mancuernas" },
+          { id: "espalda-4", name: "Jalón al pecho", type: "Máquina" },
+          { id: "espalda-5", name: "Peso muerto", type: "Barra fija" },
+        ],
+      },
+      {
+        id: "piernas",
+        name: "Pierna",
+        exercises: [
+          { id: "piernas-1", name: "Sentadilla", type: "Barra fija" },
+          { id: "piernas-2", name: "Prensa de piernas", type: "Máquina" },
+          { id: "piernas-3", name: "Zancadas con mancuernas", type: "Mancuernas" },
+          { id: "piernas-4", name: "Peso muerto rumano", type: "Barra fija" },
+          { id: "piernas-5", name: "Extensión de cuádriceps", type: "Máquina" },
+        ],
+      },
+      {
+        id: "hombros",
+        name: "Hombro",
+        exercises: [
+          { id: "hombros-1", name: "Press militar", type: "Barra fija" },
+          { id: "hombros-2", name: "Elevaciones laterales", type: "Mancuernas" },
+          { id: "hombros-3", name: "Press Arnold", type: "Mancuernas" },
+          { id: "hombros-4", name: "Pájaros (elevación posterior)", type: "Mancuernas" },
+          { id: "hombros-5", name: "Press de hombro en máquina", type: "Máquina" },
+        ],
+      },
+      {
+        id: "brazo",
+        name: "Brazo",
+        exercises: [
+          { id: "brazo-1", name: "Curl con barra", type: "Barra fija" },
+          { id: "brazo-2", name: "Curl martillo", type: "Mancuernas" },
+          { id: "brazo-3", name: "Press francés", type: "Barra fija" },
+          { id: "brazo-4", name: "Fondos en banco", type: "Peso corporal" },
+          { id: "brazo-5", name: "Extensión de tríceps en polea", type: "Máquina" },
+        ],
+      },
+      {
+        id: "biceps",
+        name: "Bíceps",
+        exercises: [
+          { id: "biceps-1", name: "Curl con barra", type: "Barra fija" },
+          { id: "biceps-2", name: "Curl con mancuerna", type: "Mancuernas" },
+          { id: "biceps-3", name: "Curl martillo", type: "Mancuernas" },
+          { id: "biceps-4", name: "Curl concentrado", type: "Mancuernas" },
+          { id: "biceps-5", name: "Curl en polea", type: "Máquina" },
+        ],
+      },
+      {
+        id: "triceps",
+        name: "Tríceps",
+        exercises: [
+          { id: "triceps-1", name: "Press francés", type: "Barra fija" },
+          { id: "triceps-2", name: "Extensión en polea", type: "Máquina" },
+          { id: "triceps-3", name: "Fondos en banco", type: "Peso corporal" },
+          { id: "triceps-4", name: "Patada de tríceps", type: "Mancuernas" },
+          { id: "triceps-5", name: "Press cerrado en banca", type: "Barra fija" },
+        ],
+      },
+      {
+        id: "core",
+        name: "Core",
+        exercises: [
+          { id: "core-1", name: "Plancha", type: "Peso corporal" },
+          { id: "core-2", name: "Crunch abdominal", type: "Peso corporal" },
+          { id: "core-3", name: "Elevación de piernas", type: "Peso corporal" },
+          { id: "core-4", name: "Rueda abdominal", type: "Peso corporal" },
+          { id: "core-5", name: "Russian twist con mancuerna", type: "Mancuernas" },
+        ],
+      },
+    ];
+
+    // ===== ESTADO =====
+    let groups = DEFAULT_GROUPS;
+    let logs = {}; // { exerciseId: [{ fecha, serie, reps, peso }] }
+    let activeGroupId = "pecho";
+    let slideIndex = 0;
+    let setRows = [{ rowId: Math.random().toString(36).slice(2, 10), reps: "", weight: "" }];
+    let justSaved = false;
+    let showAddForm = false;
+
+    // ===== FUNCIONES AUXILIARES =====
+    const uid = () => Math.random().toString(36).slice(2, 10);
+    const fmtDate = (iso) => {
+      const d = new Date(iso);
+      return d.toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "2-digit" });
+    };
+
+    const currentGroup = () => groups.find((g) => g.id === activeGroupId) || groups[0];
+    const totalSlides = () => (currentGroup().exercises.length || 0) + 1;
+    const addSlideIndex = () => currentGroup().exercises.length || 0;
+    const currentExercise = () => {
+      const group = currentGroup();
+      if (slideIndex >= group.exercises.length) return null;
+      return group.exercises[slideIndex];
+    };
+
+    // ===== RENDER =====
+    const render = () => {
+      renderGroupChips();
+      renderCarousel();
+      renderLogPanel();
+    };
+
+    const renderGroupChips = () => {
+      const container = document.getElementById("groupChips");
+      container.innerHTML = "";
+      
+      groups.forEach((g) => {
+        const chip = document.createElement("button");
+        chip.className = `chip ${g.id === activeGroupId ? "active" : ""}`;
+        chip.textContent = g.name.toUpperCase();
+        
+        chip.addEventListener("click", () => {
+          activeGroupId = g.id;
+          slideIndex = 0;
+          setRows = [{ rowId: uid(), reps: "", weight: "" }];
+          render();
+        });
+        
+        container.appendChild(chip);
+      });
+    };
+
+    const renderCarousel = () => {
+      const group = currentGroup();
+      const track = document.getElementById("carouselTrack");
+      const dotsRow = document.getElementById("dotsRow");
+
+      // Limpiar completamente
+      track.innerHTML = "";
+      dotsRow.innerHTML = "";
+
+      // Crear tarjetas de ejercicios
+      group.exercises.forEach((ex, i) => {
+        const card = document.createElement("div");
+        card.className = "carousel-card";
+        card.setAttribute("data-slide", i);
+        card.innerHTML = `
+          <button class="delete-btn">✕</button>
+          <div class="carousel-card-title">${ex.name}</div>
+          <div class="carousel-card-type">${ex.type}</div>
+        `;
+        
+        // Event listener para seleccionar esta tarjeta
+        card.addEventListener("click", (e) => {
+          if (!e.target.classList.contains("delete-btn")) {
+            slideIndex = i;
+            renderCarousel();
+            renderLogPanel();
+          }
+        });
+
+        // Event listener para el botón de eliminar
+        const deleteBtn = card.querySelector(".delete-btn");
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const idx = group.exercises.findIndex(ex2 => ex2.id === ex.id);
+          group.exercises.splice(idx, 1);
+          if (slideIndex >= group.exercises.length) {
+            slideIndex = Math.max(0, group.exercises.length - 1);
+          }
+          render();
+        });
+
+        track.appendChild(card);
+      });
+
+      // Tarjeta de "Añadir ejercicio"
+      const addCard = document.createElement("div");
+      addCard.className = "carousel-card add";
+      addCard.setAttribute("data-slide", group.exercises.length);
+      addCard.innerHTML = `
+        <button class="add-card-btn">
+          <span style="font-size: 26px;">+</span>
+          <span>Añadir ejercicio</span>
+        </button>
+      `;
+      
+      addCard.addEventListener("click", () => {
+        slideIndex = group.exercises.length;
+        showAddForm = !showAddForm;
+        renderCarousel();
+      });
+
+      track.appendChild(addCard);
+
+      // Crear dots
+      for (let i = 0; i < totalSlides(); i++) {
+        const dot = document.createElement("button");
+        dot.className = `dot ${i === slideIndex ? "active" : ""}`;
+        dot.setAttribute("data-slide", i);
+        
+        dot.addEventListener("click", () => {
+          slideIndex = i;
+          renderCarousel();
+          renderLogPanel();
+        });
+        
+        dotsRow.appendChild(dot);
+      }
+
+      // Scroll a la tarjeta activa
+      setTimeout(() => {
+        const cards = track.querySelectorAll(".carousel-card");
+        if (cards[slideIndex]) {
+          cards[slideIndex].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+      }, 50);
+
+      // Actualizar estado de botones de navegación
+      document.getElementById("prevBtn").disabled = slideIndex <= 0;
+      document.getElementById("nextBtn").disabled = slideIndex >= totalSlides() - 1;
+    };
+
+    const renderLogPanel = () => {
+      const panel = document.getElementById("logPanel");
+      const ex = currentExercise();
+
+      if (!ex) {
+        panel.innerHTML = `<div class="placeholder">Añade un ejercicio en este grupo para empezar a registrar.</div>`;
+        return;
+      }
+
+      const exLogs = logs[ex.id] || [];
+      const lastLog = exLogs.length ? exLogs[exLogs.length - 1] : null;
+      const history = exLogs.slice(-6).reverse();
+
+      let html = `
+        <div class="plate">
+          <div class="plate-top">
+            <div class="plate-name">${ex.name}</div>
+            <div class="plate-type">${ex.type}</div>
+          </div>
+      `;
+
+      if (lastLog) {
+        html += `
+          <div class="last-row">
+            <span class="last-label">ÚLTIMO REGISTRO</span>
+            <div class="last-date-line">${fmtDate(lastLog.date)}</div>
+            <div class="last-sets-list">
+              ${lastLog.sets
+                .map(
+                  (s, i) => `
+                <div class="last-set-line">
+                  <span class="last-set-idx">S${i + 1}</span>
+                  <span class="last-num">${s.reps}</span>
+                  <span class="last-unit">reps</span>
+                  ${s.weight > 0 ? `<span class="last-x">×</span><span class="last-num">${s.weight}</span><span class="last-unit">kg</span>` : ""}
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+          <div class="set-rows-wrap">
+            ${setRows
+              .map(
+                (row, i) => `
+              <div class="set-row-line">
+                <span class="set-row-idx">S${i + 1}</span>
+                <input type="number" placeholder="reps" value="${row.reps}" onchange="updateSetRow(${i}, 'reps', this.value)" />
+                <input type="number" placeholder="kg" value="${row.weight}" step="0.5" onchange="updateSetRow(${i}, 'weight', this.value)" />
+                <button class="row-remove" onclick="removeSetRow(${i})" ${setRows.length === 1 ? "disabled" : ""}>✕</button>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+          <button class="add-set-btn" onclick="addSetRow()">+ Añadir serie</button>
+          <button class="save-btn" onclick="saveLog()" id="saveBtn">Registrar sesión</button>
+          <div id="error" class="error-text"></div>
+        </div>
+      `;
+
+      if (history.length > 0) {
+        const maxMetric = Math.max(1, ...history.map((l) => l.sets.reduce((a, s) => a + s.reps * (s.weight || 1), 0)));
+        html += `
+          <div class="history-box">
+            <div class="history-header">
+              <span class="panel-label">SESIONES RECIENTES</span>
+            </div>
+            <div class="bars-wrap">
+              ${history
+                .reverse()
+                .map((l) => {
+                  const metric = l.sets.reduce((a, s) => a + s.reps * (s.weight || 1), 0);
+                  return `
+                <div class="bar-col">
+                  <div class="bar-track">
+                    <div class="bar-fill" style="height: ${Math.max(6, (metric / maxMetric) * 100)}%;"></div>
+                  </div>
+                  <span class="bar-val">${l.sets.length} serie${l.sets.length > 1 ? "s" : ""}</span>
+                  <span class="bar-date">${fmtDate(l.date)}</span>
+                </div>
+              `;
+                })
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      panel.innerHTML = html;
+    };
+
+    // ===== FUNCIONES GLOBALES (para setRows y otros contextos) =====
+    window.updateSetRow = (idx, field, value) => {
+      setRows[idx][field] = value;
+    };
+
+    window.addSetRow = () => {
+      setRows.push({ rowId: uid(), reps: "", weight: "" });
+      renderLogPanel();
+    };
+
+    window.removeSetRow = (idx) => {
+      if (setRows.length > 1) {
+        setRows.splice(idx, 1);
+        renderLogPanel();
+      }
+    };
+
+    window.saveLog = async () => {
+      const ex = currentExercise();
+      if (!ex) return;
+
+      const cleanSets = setRows
+        .map((r) => ({
+          reps: parseInt(r.reps, 10),
+          weight: r.weight === "" ? 0 : parseFloat(r.weight),
+        }))
+        .filter((s) => s.reps > 0 && !isNaN(s.reps));
+
+      if (cleanSets.length === 0) return;
+
+      const entry = {
+        date: new Date().toISOString(),
+        sets: cleanSets,
+      };
+
+      // Guardar localmente
+      if (!logs[ex.id]) logs[ex.id] = [];
+      logs[ex.id].push(entry);
+
+      // Enviar a Google Sheets
+      try {
+        for (let i = 0; i < cleanSets.length; i++) {
+          const s = cleanSets[i];
+          await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "saveSet",
+              date: entry.date,
+              grupo: currentGroup().name,
+              ejercicio: ex.name,
+              numeroSerie: i + 1,
+              reps: s.reps,
+              peso: s.weight,
+            }),
+          });
+        }
+      } catch (err) {
+        console.error("Error enviando a Sheets:", err);
+      }
+
+      // Limpiar formulario
+      setRows = [{ rowId: uid(), reps: "", weight: "" }];
+      justSaved = true;
+      setTimeout(() => {
+        justSaved = false;
+      }, 1600);
+
+      renderLogPanel();
+    };
+
+    window.setActiveGroup = (groupId) => {
+      activeGroupId = groupId;
+      slideIndex = 0;
+      setRows = [{ rowId: uid(), reps: "", weight: "" }];
+      render();
+    };
+
+    // ===== NAVEGACIÓN CARRUSEL =====
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      slideIndex = Math.max(0, slideIndex - 1);
+      renderCarousel();
+      renderLogPanel();
+    });
+    
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      slideIndex = Math.min(totalSlides() - 1, slideIndex + 1);
+      renderCarousel();
+      renderLogPanel();
+    });
+
+    // Detectar cambios por deslizamiento manual
+    let lastScrollTime = 0;
+    document.getElementById("carouselTrack").addEventListener("scroll", () => {
+      const now = Date.now();
+      if (now - lastScrollTime < 500) return; // Ignora scrolls rápidos (causados por nosotros)
+      
+      const track = document.getElementById("carouselTrack");
+      const cards = track.querySelectorAll(".carousel-card");
+      if (!cards.length) return;
+
+      const cardWidth = cards[0].clientWidth;
+      const scrollCenter = track.scrollLeft + track.clientWidth / 2;
+      const newIndex = Math.round(scrollCenter / cardWidth) - 1;
+
+      if (newIndex >= 0 && newIndex < totalSlides() && newIndex !== slideIndex) {
+        slideIndex = newIndex;
+        renderCarousel();
+        renderLogPanel();
+      }
+    }, { passive: true });
+
+    // ===== INICIALIZACIÓN =====
+    render();
+  </script>
+</body>
+</html>
